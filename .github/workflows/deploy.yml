@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: nextjs-ecs-terraform # Added: Just the repository name
+  ECR_REPOSITORY: nextjs-ecs-terraform
   IMAGE_TAG: latest
   ECS_SERVICE: nextjs-ecs-terraform-service
   ECS_CLUSTER: nextjs-ecs-terraform-cluster
@@ -50,10 +50,10 @@ jobs:
         id: build-image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: nextjs-server-app/Dockerfile
           push: true
           tags: ${{ steps.generate-image-name.outputs.image-name }}
-          file: Dockerfile
+          file: nextjs-server-app/Dockerfile
           platforms: linux/amd64
 
   terraform:
