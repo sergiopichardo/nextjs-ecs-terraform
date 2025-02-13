@@ -1,69 +1,50 @@
-# ------------------------------
-# Base Stage: Use a lightweight Node.js alpine image
-# ------------------------------
-ARG NODE_VERSION=20-alpine
-
-FROM node:${NODE_VERSION} AS base
-
+# Creating a new stage. This stage will install the dependencies related to project
+FROM node:20-alpine AS deps
+# A shared library which is requried for process.dlopen is missing in alpine image. So you need
+# to run below command in order avoid any issues that might occur due to that.
 RUN apk add --no-cache libc6-compat
-
+# Setting the current working directory as /app
 WORKDIR /app
+# Copying the package.json files from this project folder to this deps stage
+COPY package.json package-lock.json* ./
+# Installing the dependencies based on the copied files
+RUN npm ci
 
-COPY package.json package-lock.json ./
 
-# RUN PRISMA_CLI_BINARY_TARGETS=native,debian-openssl-3.0.x,linux-arm64-openssl-3.0.x,rhel-openssl-3.0.x npm ci --legacy-peer-deps
-
-# ------------------------------
-# Stage 2: Build the Next.js app
-# ------------------------------
-FROM base AS builder
-
-COPY --from=base /app/node_modules ./node_modules
+# Creating a new stage. This stage will build the project
+FROM node:20-alpine AS builder
+# Setting the current working directory as /app
+WORKDIR /app
+# Copying node modules from previous stage to this stage
+COPY --from=deps /app/node_modules ./node_modules
+# Copying source code from this project folder to this this stage
 COPY . .
-
-# Set the binary target before prisma generate
-# ENV PRISMA_CLI_BINARY_TARGETS=rhel-openssl-1.0.x
-
-# generate prisma client
-# RUN npx prisma generate
-
+# building the project
 RUN npm run build
 
-# ------------------------------
-# Stage 3: Create Production Image with Amazon Linux
-# ------------------------------
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest AS runner
 
-# Install Node.js from NodeSource
-RUN dnf install -y shadow-utils curl-minimal && \
-  curl -sL https://rpm.nodesource.com/setup_20.x | bash - && \
-  dnf install -y nodejs
-
-# Install Prisma dependencies
-RUN dnf install -y openssl-libs zlib libgcc glibc && \
-  dnf clean all
-
-# Create a non-root user for security
-RUN groupadd -g 1001 nodejs && \
-  useradd -r -u 1001 -g nodejs nextjs
-
-# Set environment variables
-ENV NODE_ENV=production
-
+# Creating a new stage. This stage will run the project
+FROM node:20-alpine AS runner
+# Setting the current working directory as /app
 WORKDIR /app
-
-# Copy necessary files from builder stage
-COPY --from=builder /app/.next/standalone ./app
-COPY --from=builder /app/public ./app/public
-COPY --from=builder /app/.next/static ./app/.next/static
-
-
-# Ensure permissions for non-root user
-RUN chown -R nextjs:nodejs /app
-
-# Switch to non-root user
-USER nextjs
-
-EXPOSE 3000
-
-CMD ["node", "app/server.js"]
+# This will improve the performance of the application
+ENV NODE_ENV=production
+# Installing wget for healthchecks
+RUN apk add --no-cache wget
+# Creating a new user group
+RUN addgroup --system --gid 1001 group1
+# Creating a new user
+RUN adduser --system --uid 1001 user1
+# Copying the public folder from builder stage to current stage 
+COPY --from=builder /app/public ./public
+# Copying the traced files from builder stage to current stage
+COPY --from=builder --chown=user1:group1 /app/.next/standalone ./
+COPY --from=builder --chown=user1:group1 /app/.next/static ./.next/static
+# Switching the current user to a non root user
+USER user1
+# Setting the PORT environment variable
+ENV PORT=3000
+# Specifying the listening port
+EXPOSE $PORT
+# Specifying the command that needs to get executed when the container is running
+CMD ["node", "server.js"]

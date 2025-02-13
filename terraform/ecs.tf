@@ -183,7 +183,8 @@ resource "aws_ecs_task_definition" "this" {
     environment : [
       {
         name  = "DATABASE_URL",
-        value = "postgresql://${var.database_username}:${var.database_password}@${module.rds.db_instance_endpoint}/${var.database_name}"
+        value = ""
+        # value = "postgresql://${var.database_username}:${var.database_password}@${module.rds.db_instance_endpoint}/${var.database_name}"
       },
     ],
     essential = true,
@@ -219,38 +220,38 @@ resource "aws_ecs_task_definition" "this" {
 }
 
 
-// Prisma Migration Task
-resource "aws_ecs_task_definition" "migrations" {
-  cpu                      = var.container_cpu
-  family                   = "${local.project_name}-migrations-task-definition-family"
-  memory                   = var.container_memory
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
+# // Prisma Migration Task
+# resource "aws_ecs_task_definition" "migrations" {
+#   cpu                      = var.container_cpu
+#   family                   = "${local.project_name}-migrations-task-definition-family"
+#   memory                   = var.container_memory
+#   network_mode             = "awsvpc"
+#   requires_compatibilities = ["FARGATE"]
 
-  task_role_arn      = aws_iam_role.ecs_task_role.arn
-  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+#   task_role_arn      = aws_iam_role.ecs_task_role.arn
+#   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
 
-  container_definitions = jsonencode([{
-    environment : [
-      {
-        name  = "DATABASE_URL",
-        value = "postgresql://${var.database_username}:${var.database_password}@${module.rds.db_instance_endpoint}/${var.database_name}"
-      },
-    ],
-    essential = true,
-    image     = "${local.image_name}-migrations",
-    name      = "${local.project_name}-migrations-container",
-    logConfiguration = {
-      logDriver = "awslogs"
-      options = {
-        "awslogs-group"         = aws_cloudwatch_log_group.this.name
-        "awslogs-region"        = data.aws_region.this.name
-        "awslogs-stream-prefix" = "ecs-migrations"
-      }
-    }
+#   container_definitions = jsonencode([{
+#     environment : [
+#       {
+#         name  = "DATABASE_URL",
+#         value = "postgresql://${var.database_username}:${var.database_password}@${module.rds.db_instance_endpoint}/${var.database_name}"
+#       },
+#     ],
+#     essential = true,
+#     image     = "${local.image_name}-migrations",
+#     name      = "${local.project_name}-migrations-container",
+#     logConfiguration = {
+#       logDriver = "awslogs"
+#       options = {
+#         "awslogs-group"         = aws_cloudwatch_log_group.this.name
+#         "awslogs-region"        = data.aws_region.this.name
+#         "awslogs-stream-prefix" = "ecs-migrations"
+#       }
+#     }
 
-    linux_parameters = {
-      init_process_behavior = "ENABLE"
-    }
-  }])
-}
+#     linux_parameters = {
+#       init_process_behavior = "ENABLE"
+#     }
+#   }])
+# }
