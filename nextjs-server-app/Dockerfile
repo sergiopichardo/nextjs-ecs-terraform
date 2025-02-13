@@ -11,7 +11,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN PRISMA_CLI_BINARY_TARGETS=native,debian-openssl-3.0.x,linux-arm64-openssl-3.0.x,rhel-openssl-3.0.x npm ci --legacy-peer-deps
+# RUN PRISMA_CLI_BINARY_TARGETS=native,debian-openssl-3.0.x,linux-arm64-openssl-3.0.x,rhel-openssl-3.0.x npm ci --legacy-peer-deps
 
 # ------------------------------
 # Stage 2: Build the Next.js app
@@ -22,10 +22,10 @@ COPY --from=base /app/node_modules ./node_modules
 COPY . .
 
 # Set the binary target before prisma generate
-ENV PRISMA_CLI_BINARY_TARGETS=rhel-openssl-1.0.x
+# ENV PRISMA_CLI_BINARY_TARGETS=rhel-openssl-1.0.x
 
 # generate prisma client
-RUN npx prisma generate
+# RUN npx prisma generate
 
 RUN npm run build
 
