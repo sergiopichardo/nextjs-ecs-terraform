@@ -62,7 +62,7 @@ jobs:
     needs: [build_and_deploy]
     outputs:
       private_subnet_ids: ${{ steps.terraform-outputs.outputs.private_subnet_ids }}
-      rds_security_group_id: ${{ steps.terraform-outputs.outputs.rds_security_group_id }}
+      # rds_security_group_id: ${{ steps.terraform-outputs.outputs.rds_security_group_id }}
     defaults:
       run:
         working-directory: terraform
@@ -99,4 +99,4 @@ jobs:
         run: |
           terraform workspace select default
           echo "private_subnet_ids=$(terraform output -raw private_subnet_ids)" >> $GITHUB_OUTPUT
-          echo "rds_security_group_id=$(terraform output -raw rds_security_group_id)" >> $GITHUB_OUTPUT
+          # echo "rds_security_group_id=$(terraform output -raw rds_security_group_id)" >> $GITHUB_OUTPUT
