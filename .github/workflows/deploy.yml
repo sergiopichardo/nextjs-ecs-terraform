@@ -50,7 +50,7 @@ jobs:
         id: build-image
         uses: docker/build-push-action@v5
         with:
-          context: nextjs-server-app/Dockerfile
+          context: nextjs-server-app
           push: true
           tags: ${{ steps.generate-image-name.outputs.image-name }}
           file: nextjs-server-app/Dockerfile
