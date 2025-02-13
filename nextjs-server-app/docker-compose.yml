@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: measure_team
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: measure_team
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - measure-team
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://measure_team:1234@postgres:5432/measure_team
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./:/usr/src/app
+    depends_on:
+      - postgres
+    networks:
+      - measure-team
+
+  mailhog:
+    container_name: mailhog
+    image: mailhog/mailhog:latest
+    platform: linux/amd64
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    networks:
+      - measure-team
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - '8080:8080'
+    networks:
+      - measure-team
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+
+networks:
+  measure-team:
+    driver: bridge

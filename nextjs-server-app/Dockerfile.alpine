@@ -1,0 +1,64 @@
+# ------------------------------
+# Base Stage: Use a lightweight Node.js alpine image
+# ------------------------------
+ARG NODE_VERSION=23.4.0-alpine
+
+FROM node:${NODE_VERSION} AS base
+
+RUN apk add --no-cache libc6-compat
+
+# Set working directory
+WORKDIR /app
+
+# Leverage Docker cache by copying only package manager files
+COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN npm ci --legacy-peer-deps
+
+# ------------------------------
+# Stage 2: Build the Next.js app
+# ------------------------------
+FROM base AS builder
+
+# Copy installed dependencies
+COPY --from=base /app/node_modules ./node_modules
+
+# Copy application source code
+COPY . .
+
+# Build the application in standalone mode
+RUN npx prisma generate
+RUN npm run build
+
+# ------------------------------
+# Stage 3: Create Production Image
+# ------------------------------
+FROM node:${NODE_VERSION} AS runner
+
+# Set a non-root user for security
+RUN addgroup --gid 1001 nodejs && \
+  adduser --system --uid 1001 --ingroup nodejs nextjs && \
+  apk add --no-cache curl && curl --version
+
+# Set environment variables
+ENV NODE_ENV=production
+
+# Set the working directory
+WORKDIR /app
+
+# Copy necessary files from builder stage
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/public ./public
+
+# Ensure permissions for the non-root user
+RUN chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose application port
+EXPOSE 3000
+
+# Run the application
+CMD ["node", "server.js"]
