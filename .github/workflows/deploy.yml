@@ -34,7 +34,6 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
       
-
       - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -88,29 +87,16 @@ jobs:
 
       - name: terraform plan
         run: |
-          if [ "${{ github.ref_name }}" == "main" ]; then
-            terraform plan -var-file=prod.tfvars
-          else
-            terraform plan -var-file=nonprod.tfvars
-          fi
+          terraform plan -var-file=vars.tfvars
 
       - name: Apply Terraform Changes
         run: |
-          if [ "${{ github.ref_name }}" == "mt-917/create-cloud-infra" ]; then
-            terraform workspace select default
-            terraform apply -no-color -input=false -auto-approve -var-file=nonprod.tfvars
-          elif [ "${{ github.ref_name }}" == "main" ]; then
-            terraform workspace select prod
-            terraform apply -no-color -input=false -auto-approve -var-file=prod.tfvars
-          fi
+          terraform workspace select default
+          terraform apply -no-color -input=false -auto-approve -var-file=vars.tfvars
 
       - name: Get Terraform Outputs
         id: terraform-outputs
         run: |
-          if [ "${{ github.ref_name }}" == "main" ]; then
-            terraform workspace select prod
-          else
-            terraform workspace select default
-          fi
+          terraform workspace select default
           echo "private_subnet_ids=$(terraform output -raw private_subnet_ids)" >> $GITHUB_OUTPUT
           echo "rds_security_group_id=$(terraform output -raw rds_security_group_id)" >> $GITHUB_OUTPUT
