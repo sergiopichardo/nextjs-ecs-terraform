@@ -1,11 +1,10 @@
-AWS_VAULT_PROFILE=lcm-measure-team
+AWS_VAULT_PROFILE=sergio_sso
 AWS_VAULT_EXEC=aws-vault exec $(AWS_VAULT_PROFILE)
-AWS_ACCOUNT_ID=484355098003
+AWS_ACCOUNT_ID=152725004650
 AWS_REGION=us-east-1
-APP_NAME=measure-team
+APP_NAME=nextjs-ecs-terraform
 CPU_ARCHITECTURES=linux/amd64,linux/arm64
-BUILDX_BUILDER_NAME=mtbuilder
-RUNNING_TASK_ARN=$(AWS_VAULT_EXEC) -- aws ecs list-tasks --cluster measure-team-fargate-cluster | jq -r '.tasks[0].taskArn')
+BUILDX_BUILDER_NAME=nextjs-ecs-terraform-builder
 
 # Create docker buildx builder
 create-buildx-builder:

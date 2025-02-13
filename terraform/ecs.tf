@@ -192,7 +192,7 @@ resource "aws_ecs_task_definition" "this" {
     portMappings = [
       {
         containerPort = var.container_port
-        // host port is not set, so it will be randomly set by the ecs cluster
+        hostPort      = var.container_port
       }
     ],
     healthCheck = {
