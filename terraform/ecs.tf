@@ -187,14 +187,14 @@ resource "aws_ecs_task_definition" "this" {
         value = ""
         # value = "postgresql://${var.database_username}:${var.database_password}@${module.rds.db_instance_endpoint}/${var.database_name}"
       },
-      {
-        name  = "HOSTNAME",
-        value = "0.0.0.0"
-      },
-      {
-        name  = "PORT",
-        value = "3000"
-      },
+      # {
+      #   name  = "HOSTNAME",
+      #   value = "0.0.0.0"
+      # },
+      # {
+      #   name  = "PORT",
+      #   value = "3000"
+      # },
     ],
     essential = true,
     image     = "${data.aws_caller_identity.this.account_id}.dkr.ecr.${data.aws_region.this.name}.amazonaws.com/nextjs-ecs-terraform:latest",
