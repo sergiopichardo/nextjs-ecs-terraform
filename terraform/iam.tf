@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "oidc" {
 
     condition {
       test     = "StringLike"
-      values   = ["repo:sergiopichardo/nextjs-ecs-terraform"]
+      values   = ["repo:sergiopichardo/nextjs-ecs-terraform:ref:refs/heads/*"]
       variable = "token.actions.githubusercontent.com:sub"
     }
   }
