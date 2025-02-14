@@ -193,7 +193,7 @@ resource "aws_ecs_task_definition" "this" {
       },
       {
         name  = "PORT",
-        value = 3000
+        value = "3000"
       },
     ],
     essential = true,
