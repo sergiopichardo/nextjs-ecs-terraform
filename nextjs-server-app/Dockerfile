@@ -48,4 +48,4 @@ ENV PORT=3000
 # Specifying the listening port
 EXPOSE $PORT
 # Specifying the command that needs to get executed when the container is running
-CMD ["node", "server.js"]
+CMD HOSTNAME=0.0.0.0 node server.js
