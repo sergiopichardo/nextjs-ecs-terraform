@@ -1,14 +1,14 @@
 module "vpc" {
   source             = "terraform-aws-modules/vpc/aws"
   version            = "~> 5.18.0"
-  name               = var.vpc_name
+  name               = "nextjs-ecs-terraform-vpc"
   azs                = slice(data.aws_availability_zones.available.names, 0, 2)
-  cidr               = var.vpc_cidr_block
-  create_igw         = var.enable_internet_gateway
-  enable_nat_gateway = var.enable_nat_gateway
-  private_subnets    = var.private_subnets
-  public_subnets     = var.public_subnets
-  single_nat_gateway = var.single_nat_gateway
+  cidr               = "10.0.0.0/16"
+  create_igw         = true
+  enable_nat_gateway = true
+  private_subnets    = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets     = ["10.0.101.0/24", "10.0.102.0/24"]
+  single_nat_gateway = true
 }
 
 
@@ -24,6 +24,5 @@ output "vpc_id" {
 
 output "private_subnet_ids" {
   description = "The IDs of the private subnets"
-  # e.g. "subnet-0123456789abcdefg,subnet-0123456789abcdefh,subnet-0123456789abcdefi"
-  value = join(",", module.vpc.private_subnets)
+  value       = join(",", module.vpc.private_subnets)
 }

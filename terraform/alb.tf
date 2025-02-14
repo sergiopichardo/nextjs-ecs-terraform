@@ -1,20 +1,18 @@
-
 # Create application load balancer
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 8.4.0"
-  name    = "${local.project_name}-alb"
+  name    = "nextjs-ecs-terraform-alb"
 
   load_balancer_type = "application"
-  security_groups    = [module.vpc.default_security_group_id]
   subnets            = module.vpc.public_subnets
   vpc_id             = module.vpc.vpc_id
 
   security_group_rules = {
     ingress_all_http = {
       type        = "ingress"
-      from_port   = var.ingress_port
-      to_port     = var.ingress_port
+      from_port   = 80
+      to_port     = 80
       protocol    = "TCP"
       description = "HTTP web traffic"
       cidr_blocks = ["0.0.0.0/0"]
@@ -32,7 +30,7 @@ module "alb" {
     {
       # Defaults to "forward" action for "target group"
       # at index = 0 in "the target_groups" input below.
-      port               = var.ingress_port
+      port               = 80
       protocol           = "HTTP"
       target_group_index = 0
     }
@@ -40,7 +38,7 @@ module "alb" {
 
   target_groups = [
     {
-      backend_port     = var.target_group_service_port
+      backend_port     = 3000
       backend_protocol = "HTTP"
       target_type      = "ip"
     }
