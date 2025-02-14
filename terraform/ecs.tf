@@ -61,7 +61,7 @@ resource "aws_security_group" "ecs_tasks" {
 
 resource "aws_ecs_service" "this" {
   cluster                = module.ecs.cluster_id
-  desired_count          = 1
+  desired_count          = 4
   launch_type            = "FARGATE"
   name                   = "nextjs-ecs-terraform-service"
   task_definition        = aws_ecs_task_definition.this.arn
@@ -187,13 +187,13 @@ resource "aws_ecs_task_definition" "this" {
         value = ""
         # value = "postgresql://${var.database_username}:${var.database_password}@${module.rds.db_instance_endpoint}/${var.database_name}"
       },
-      # {
-      #   name  = "HOSTNAME",
-      #   value = "0.0.0.0"
-      # },
+      {
+        name  = "HOSTNAME",
+        value = "0.0.0.0"
+      },
       {
         name  = "PORT",
-        value = "3000"
+        value = 3000
       },
     ],
     essential = true,

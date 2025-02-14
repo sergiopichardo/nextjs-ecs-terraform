@@ -47,6 +47,8 @@ USER user1
 ENV PORT=3000
 # Specifying the listening port
 EXPOSE $PORT
-# Specifying the command that needs to get executed when the container is running
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 ENV HOSTNAME=0.0.0.0
 CMD ["node", "server.js"]
