@@ -1,110 +1,110 @@
-# name: Deploy Next.js App to ECS
+name: Deploy Next.js App to ECS
 
-# on:
-#   push:
-#     branches:
-#       - main
-#       - develop
+on:
+  push:
+    branches:
+      - main
+      - develop
 
-# env:
-#   AWS_REGION: us-east-1
-#   ECR_REPOSITORY: nextjs-ecs-terraform
-#   IMAGE_TAG: latest
-#   ECS_SERVICE: nextjs-ecs-terraform-service
-#   ECS_CLUSTER: nextjs-ecs-terraform-cluster
-#   ECS_TASK_DEFINITION: nextjs-ecs-terraform-task-definition
-#   CONTAINER_NAME: nextjs-ecs-terraform-container
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: nextjs-ecs-terraform
+  IMAGE_TAG: latest
+  ECS_SERVICE: nextjs-ecs-terraform-service
+  ECS_CLUSTER: nextjs-ecs-terraform-cluster
+  ECS_TASK_DEFINITION: nextjs-ecs-terraform-task-definition
+  CONTAINER_NAME: nextjs-ecs-terraform-container
 
-# jobs:
-#   build_and_deploy:
-#     name: Build and Deploy
-#     runs-on: ubuntu-latest
-#     permissions:
-#       id-token: write
-#       contents: read
-#     steps:
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/iam_oidc_github_role
-#           aws-region: ${{ env.AWS_REGION }}
+jobs:
+  build_and_deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/iam_oidc_github_role
+          aws-region: ${{ env.AWS_REGION }}
 
-#       - name: Checkout Repo
-#         uses: actions/checkout@v4
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
 
-#       - name: Set Up Docker
-#         uses: docker/setup-buildx-action@v2
-#         with:
-#           platforms: linux/amd64,linux/arm64
+      - name: Set Up Docker
+        uses: docker/setup-buildx-action@v2
+        with:
+          platforms: linux/amd64,linux/arm64
       
-#       - name: Login to ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-#       - name: Generate image name
-#         id: generate-image-name
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ env.IMAGE_TAG }}
-#         run: |
-#           echo "image-name=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+      - name: Generate image name
+        id: generate-image-name
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          echo "image-name=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
-#       - name: Build, tag and push image to Amazon ECR
-#         id: build-image
-#         uses: docker/build-push-action@v5
-#         with:
-#           context: nextjs-server-app
-#           push: true
-#           tags: ${{ steps.generate-image-name.outputs.image-name }}
-#           file: nextjs-server-app/Dockerfile
-#           platforms: linux/amd64
+      - name: Build, tag and push image to Amazon ECR
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: nextjs-server-app
+          push: true
+          tags: ${{ steps.generate-image-name.outputs.image-name }}
+          file: nextjs-server-app/Dockerfile
+          platforms: linux/amd64
 
-#   terraform:
-#     name: Infrastructure
-#     runs-on: ubuntu-latest
-#     needs: [build_and_deploy]
-#     permissions:
-#       id-token: write
-#       contents: read
-#     outputs:
-#       private_subnet_ids: ${{ steps.terraform-outputs.outputs.private_subnet_ids }}
-#       # rds_security_group_id: ${{ steps.terraform-outputs.outputs.rds_security_group_id }}
-#     defaults:
-#       run:
-#         working-directory: terraform
-#     steps:
-#       - name: Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/iam_oidc_github_role
-#           aws-region: ${{ env.AWS_REGION }}
-#       - name: Checkout Repo
-#         uses: actions/checkout@v4
+  # terraform:
+  #   name: Infrastructure
+  #   runs-on: ubuntu-latest
+  #   needs: [build_and_deploy]
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   outputs:
+  #     private_subnet_ids: ${{ steps.terraform-outputs.outputs.private_subnet_ids }}
+  #     # rds_security_group_id: ${{ steps.terraform-outputs.outputs.rds_security_group_id }}
+  #   defaults:
+  #     run:
+  #       working-directory: terraform
+  #   steps:
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/iam_oidc_github_role
+  #         aws-region: ${{ env.AWS_REGION }}
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v4
 
 
-#       - name: Setup Terraform
-#         uses: hashicorp/setup-terraform@v3
-#         with:
-#           terraform_version: 1.7
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v3
+  #       with:
+  #         terraform_version: 1.7
 
-#       - name: Initialize Terraform
-#         run: terraform init
+  #     - name: Initialize Terraform
+  #       run: terraform init
 
-#       - name: terraform plan
-#         run: |
-#           terraform plan -var-file=vars.tfvars
+  #     - name: terraform plan
+  #       run: |
+  #         terraform plan -var-file=vars.tfvars
 
-#       - name: Apply Terraform Changes
-#         run: |
-#           terraform workspace select default
-#           terraform apply -no-color -input=false -auto-approve -var-file=vars.tfvars
+  #     - name: Apply Terraform Changes
+  #       run: |
+  #         terraform workspace select default
+  #         terraform apply -no-color -input=false -auto-approve -var-file=vars.tfvars
 
-#       - name: Get Terraform Outputs
-#         id: terraform-outputs
-#         run: |
-#           terraform workspace select default
-#           echo "private_subnet_ids=$(terraform output -raw private_subnet_ids)" >> $GITHUB_OUTPUT
-#           # echo "rds_security_group_id=$(terraform output -raw rds_security_group_id)" >> $GITHUB_OUTPUT
+  #     - name: Get Terraform Outputs
+  #       id: terraform-outputs
+  #       run: |
+  #         terraform workspace select default
+  #         echo "private_subnet_ids=$(terraform output -raw private_subnet_ids)" >> $GITHUB_OUTPUT
+  #         # echo "rds_security_group_id=$(terraform output -raw rds_security_group_id)" >> $GITHUB_OUTPUT

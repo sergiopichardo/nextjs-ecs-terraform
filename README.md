@@ -47,5 +47,11 @@ example response:
 }
 ```
 
+### S3 Backend State
 
+Create an S3 bucket to store the terraform state file.
+
+```
+aws s3 mb s3://state-nextjs-ecs-terraform-$RANDOM
+```
 
