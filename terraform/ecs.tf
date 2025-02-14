@@ -67,11 +67,11 @@ resource "aws_ecs_service" "this" {
   task_definition        = aws_ecs_task_definition.this.arn
   enable_execute_command = true // terraform.workspace == "default" ? true : false
 
-  lifecycle {
-    # Allow external changes to happen without Terraform conflicts, particularly around auto-scaling.
-    # if we update the designed count, we don't want terraform to destroy and recreate the services
-    ignore_changes = [desired_count]
-  }
+  # lifecycle {
+  #   # Allow external changes to happen without Terraform conflicts, particularly around auto-scaling.
+  #   # if we update the designed count, we don't want terraform to destroy and recreate the services
+  #   ignore_changes = [desired_count]
+  # }
 
   load_balancer {
     container_name   = "nextjs-ecs-terraform-container" // should it be set to 0? 
