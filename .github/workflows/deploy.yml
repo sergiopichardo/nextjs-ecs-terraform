@@ -3,7 +3,8 @@ name: Deploy Next.js App to ECS
 on:
   push:
     branches:
-      - main 
+      - main
+      - develop
 
 env:
   AWS_REGION: us-east-1
