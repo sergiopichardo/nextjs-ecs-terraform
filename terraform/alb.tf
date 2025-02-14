@@ -41,6 +41,18 @@ module "alb" {
       backend_port     = 3000
       backend_protocol = "HTTP"
       target_type      = "ip"
+
+      health_check = {
+        enabled             = true
+        interval            = 30
+        path                = "/api/healthcheck"
+        port                = "traffic-port"
+        healthy_threshold   = 3
+        unhealthy_threshold = 3
+        timeout             = 5
+        protocol            = "HTTP"
+        matcher             = "200-399"
+      }
     }
   ]
 }
