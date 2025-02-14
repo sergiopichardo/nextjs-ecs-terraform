@@ -71,9 +71,23 @@ connect-to-ecs-task:
 		--interactive \
 		--command "/bin/sh"
 
-# Delete all images and containers
-prune:
-	docker rmi -f $(docker images -aq) && docker rm -vf $(docker ps -aq)
+clean-images:
+	if [ "$$(docker images -q)" ]; then \
+		docker image rm -f $$(docker images -aq); \
+	else \
+		echo "No images to remove"; \
+	fi
+
+# Delete all containers
+clean-containers:
+	if [ "$$(docker ps -aq)" ]; then \
+		docker container rm -f $$(docker ps -aq); \
+	else \
+		echo "No containers to remove"; \
+	fi
+
+# Delete both containers and images
+clean-all: clean-containers clean-images
 
 
-run: get-docker-auth-token build-docker-image tag-docker-image upload-image-to-ecr
+ecr-deploy: get-docker-auth-token build-docker-image tag-docker-image upload-image-to-ecr
