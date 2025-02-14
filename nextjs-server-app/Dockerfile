@@ -30,6 +30,7 @@ WORKDIR /app
 # This will improve the performance of the application
 ENV NODE_ENV=production
 # Installing wget for healthchecks
+RUN apk update && apk upgrade 
 RUN apk add --no-cache wget curl
 # Creating a new user group
 RUN addgroup --system --gid 1001 group1

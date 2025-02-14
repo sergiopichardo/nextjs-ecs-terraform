@@ -3,7 +3,7 @@ AWS_VAULT_EXEC=aws-vault exec $(AWS_VAULT_PROFILE)
 AWS_ACCOUNT_ID=152725004650
 AWS_REGION=us-east-1
 APP_NAME=nextjs-ecs-terraform
-CPU_ARCHITECTURES=linux/amd64,linux/arm64
+CPU_ARCHITECTURES=linux/amd64
 BUILDX_BUILDER_NAME=nextjs-ecs-terraform-builder
 
 # Create docker buildx builder
@@ -30,8 +30,10 @@ get-docker-auth-token:
 		$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 
 # Build the docker image 
+# docker buildx build --platform $(CPU_ARCHITECTURES) --load -t $(APP_NAME) .
 build-docker-image:
-	docker buildx build --platform $(CPU_ARCHITECTURES) --load -t $(APP_NAME) .
+	docker buildx build --platform linux/amd64 --load -t $(APP_NAME) .
+
 
 # Run docker image locally 
 run-docker-container:

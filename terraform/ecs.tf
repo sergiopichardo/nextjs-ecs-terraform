@@ -201,8 +201,8 @@ resource "aws_ecs_task_definition" "this" {
       command = [
         "CMD-SHELL",
         # NOTE: this is an api route in nextjs-server-app/src/app/api/healthcheck/route.ts
-        # "curl -f http://localhost:3000/api/healthcheck || exit 1"
-        "curl -f http://localhost/ >> /proc/1/fd/1 2>&1  || exit 1"
+        "curl -f http://localhost:3000/api/healthcheck || exit 1"
+        # "curl -f http://localhost/ >> /proc/1/fd/1 2>&1  || exit 1"
         # "curl -f http://localhost:3000/api/healthcheck || exit 1"
         # "curl -s --fail -I http://0.0.0.0:${var.container_port}/ || exit 1"
       ]
