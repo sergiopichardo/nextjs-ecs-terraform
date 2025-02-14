@@ -20,3 +20,32 @@ Add the following secrets to the repository:
 terraform init
 ```
 
+### Next.js Server Endpoint 
+
+```
+curl -f <application_load_balancer_url>/api/healthcheck
+```
+
+example response:
+```
+{
+  "status": "ok",
+  "timestamp": "2025-02-14T02:36:03.758Z",
+  "uptime": 313.788692672,
+  "memoryUsage": {
+    "rss": 77361152,
+    "heapTotal": 25075712,
+    "heapUsed": 24334784,
+    "external": 3904917,
+    "arrayBuffers": 508617
+  },
+  "cpuUsage": {
+    "user": 899842,
+    "system": 170718
+  },
+  "pid": 1
+}
+```
+
+
+
